@@ -27,8 +27,8 @@
 
         //Una vez adentro del div de nuestro interes, se observa que todos los enlaces que se necesitan
         //Comienzan por detalle_noticia.php?id=
-        //$enlaces = explode("http://www.sectorgambling.com/", $contenido);
-        $enlaces = explode("http://www.sectorgambling.com/2014/08/13/", $contenido); 
+        $enlaces = explode("http://www.sectorgambling.com/", $contenido);
+        //$enlaces = explode("http://www.sectorgambling.com/2014/08/13/", $contenido); 
         //Se hace un explode para obtener todos los codigos html que comiencen justo despues de detalle_noticia.php?id=
   
         $idNoticias = array();
@@ -43,7 +43,7 @@
 			$id = substr($cadena, 0, $posicionFinal);
 			//Se comienca en $i-1 porque el primer link que devuelve esta web siempre es vacio y se requieren 
 			//son los numeros de los id
-			if($i!=(count($enlaces)-1))$idNoticias[$i-1] = $id;			        }
+	        }
 
         /*
         Para el listado de noticias de sector del juego por cada cuadricula hay 3 enlaces,
