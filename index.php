@@ -19,7 +19,7 @@
         //Luego de estudiar el codigo fuente de la web, se descubre que todos los elementos de interes
         //Se encuentran dentro del div LATERAL_IZQUIERDO_DETALLE, por ende se hace un explode para poder
         //Obtener los argumentos que esten antes o despues (adentro del div)
-        $str = '<div id="entries">';
+        $str = '<div id="left-area">';
         $arr = explode($str, $htm);
         $arr = explode('</div', $arr[1]);
 
@@ -27,13 +27,14 @@
 
         //Una vez adentro del div de nuestro interes, se observa que todos los enlaces que se necesitan
         //Comienzan por detalle_noticia.php?id=
-        $enlaces = explode("http://www.sectorgambling.com/", $contenido);
-
+        //$enlaces = explode("http://www.sectorgambling.com/", $contenido);
+        $enlaces = explode("http://www.sectorgambling.com/2014/08/13/", $contenido); 
         //Se hace un explode para obtener todos los codigos html que comiencen justo despues de detalle_noticia.php?id=
   
         $idNoticias = array();
         //Se realiza un ciclo for para obtener todos los ids de las noticias
-        for ($i=1; $i < count($enlaces); $i++) { 
+        for ($i=1; $i < count($enlaces); $i++) 
+              { 
         	$cadena = $enlaces[$i];
         	//En estas cadenas resultados del ultimo explode hay mas contenido del que nos interesa
         	//Un ejemplo de un link es detalle_noticia.php?id=83851" por ende se sabe que el codigo del id
@@ -42,8 +43,8 @@
 			$id = substr($cadena, 0, $posicionFinal);
 			//Se comienca en $i-1 porque el primer link que devuelve esta web siempre es vacio y se requieren 
 			//son los numeros de los id
-			$idNoticias[$i-1] = $id;
-			        }
+			if($i!=(count($enlaces)-1))$idNoticias[$i-1] = $id;			        }
+
         /*
         Para el listado de noticias de sector del juego por cada cuadricula hay 3 enlaces,
         uno en el texto, otro en la imagen y otro en el titulo, por ende despues de buscar los links
@@ -51,6 +52,7 @@
         los duplicados, pero conserva las antiguas claves, por esto se debe usar foreach y no un for normal
         */
         $idNoticias = array_unique($idNoticias); 
+        
         /*
         Se procede a recorrer cada uno de los enlaces para extraer la data y almacenarla en la base de datos
         Se busca recorrer el listado de urls que se genero ejemplo:
@@ -66,7 +68,7 @@
         foreach ($idNoticias as $key => $value) {
         	ini_set('max_execution_time', 300);  
         	// Tener en cuenta que no es igual la ruta lista_noticias a detalle_noticia
-        	$urlNoticia = "http://www.sectorgambling.com/.php?date=".$value;
+        	$urlNoticia = "http://www.sectorgambling.com/".$value;
         	
             /*A partir de este punto, hay que analizar de nuevo la estructura del codigo
         	De una noticia en particular, en el caso de noticias hay que extraer 3 elementos siempre
