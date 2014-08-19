@@ -1,25 +1,25 @@
 <?php
 
-    $arreglo = parsearDataSectorGamblingAction();
+    $arreglo = parsearDataOrdenacionJuegoAction();
 
     echo'Ver contenido de la carpeta uploads, si funciono se debieron descargar muchas imagenes, nota esta funcion esta pensada en wampserver porque la ruta es C:/wamp/www/tareaEspecial/uploads';exit;
-    function parsearDataSectorGamblingAction() {
+    function parsearDataOrdenacionJuegoAction() {
 
 		//$em = $this -> getDoctrine() -> getManager();
 
-		$contadorImagenes = 0;
+		$contadorpdf = 0;
 		$contadorPronosticos = 0;
 		$contadorNoticias = 0;
         
         //Ruta del listado de noticias de la web a analizar
-		$url = 'http://www.sectorgambling.com/';
+		$url = 'http://www.ordenacionjuego.es/';
 
         //Con la funcion file_get_contents se obtiene todo el html que devuelve la web señalada
         $htm = file_get_contents($url);
         //Luego de estudiar el codigo fuente de la web, se descubre que todos los elementos de interes
         //Se encuentran dentro del div LATERAL_IZQUIERDO_DETALLE, por ende se hace un explode para poder
         //Obtener los argumentos que esten antes o despues (adentro del div)
-        $str = '<div id="left-area">';
+        $str = '<div id="block-system-main" class="block block-system">';
         $arr = explode($str, $htm);
         $arr = explode('</div', $arr[1]);
 
@@ -27,8 +27,7 @@
 
         //Una vez adentro del div de nuestro interes, se observa que todos los enlaces que se necesitan
         //Comienzan por detalle_noticia.php?id=
-        $enlaces = explode("http://www.sectorgambling.com/", $contenido);
-        //$enlaces = explode("http://www.sectorgambling.com/2014/08/13/", $contenido); 
+        $enlaces = explode("http://www.ordenacionjuego.es/", $contenido);
         //Se hace un explode para obtener todos los codigos html que comiencen justo despues de detalle_noticia.php?id=
   
         $idNoticias = array();
@@ -52,7 +51,8 @@
         los duplicados, pero conserva las antiguas claves, por esto se debe usar foreach y no un for normal
         */
         $idNoticias = array_unique($idNoticias); 
-        
+        //var_dump($idNoticias);exit;
+ 
         /*
         Se procede a recorrer cada uno de los enlaces para extraer la data y almacenarla en la base de datos
         Se busca recorrer el listado de urls que se genero ejemplo:
@@ -68,7 +68,7 @@
         foreach ($idNoticias as $key => $value) {
         	ini_set('max_execution_time', 300);  
         	// Tener en cuenta que no es igual la ruta lista_noticias a detalle_noticia
-        	$urlNoticia = "http://www.sectorgambling.com/".$value;
+        	$urlNoticia = "http://www.ordenacionjuego.es/".$value;
         	
             /*A partir de este punto, hay que analizar de nuevo la estructura del codigo
         	De una noticia en particular, en el caso de noticias hay que extraer 3 elementos siempre
@@ -79,34 +79,34 @@
         	*/        
             //Con la funcion file_get_contents se obtiene todo el html que devuelve la web señalada
         	$html = file_get_contents($urlNoticia);
-        	$busqueda = '<div class="entry post clearfix">';
+        	$busqueda = '<div id="content">';
         	$html = explode($busqueda, $html);
         	$html = $html[1];
 
         	//Se comienza a extraer los datos de interes, se comienza con el TITULO, el cual se almacena en 
         	//<div id="TITULAR_DETALLE">
-        	$busqueda = '<h1 class="title">';
+        	$busqueda = '<div id="title-title">';
             $titulo = explode($busqueda, $html);
-            $titulo = explode('</h1', $titulo[1]);
+            $titulo = explode('</div', $titulo[1]);
 
-            $imagen = $titulo[1];//Se almacenan varias lineas de codigo entre ellas la imagen <img>
+            $pdf = $titulo[1];//Se almacenan varias lineas de codigo entre ellas la imagen <img>
             $titulo = $titulo[0];//Se almacena unicamente el titulo por ende estaria listo para guardarse
 
             //Se procede a procesar la IMAGEN
-            $busqueda = 'src="';
-            $imagen = explode($busqueda, $imagen);
-            $imagen = explode('"', $imagen[1]);
-            $imagen = $imagen[0];
+            $busqueda = 'href="';
+            $pdf = explode($busqueda, $pdf);
+            $pdf = explode('"', $pdf[1]);
+            $pdf = $pdf[0];
 
-            $urlImagen = 'http://www.sectorgambling.com/'.$imagen;
-            $extension = explode(".", $urlImagen);
+            $urlpdf = 'http://www.ordenacionjuego.es/'.$pdf;
+            $extension = explode(".", $urlpdf);
             $extension = $extension[count($extension) - 1];
             //$path = $this -> container -> getParameter('kernel.root_dir') . '/../web/' . $this -> getUploadDir();
-            $nombreImagen = sha1($urlImagen);
+            $nombrepdf = sha1($urlpdf);
 
             ini_set('max_execution_time', 300);
-            $ch = curl_init($urlImagen);
-            $fp = fopen(sprintf('%s/%s.%s', 'C:/wamp/www/tareaEspecial/uploads', $nombreImagen, $extension), 'wb');
+            $ch = curl_init($urlpdf);
+            $fp = fopen(sprintf('%s/%s.%s', 'C:/wamp/www/tareaEspecial/uploads', $nombrpdf, $extension), 'wb');
             curl_setopt($ch, CURLOPT_FILE, $fp);
             curl_setopt($ch, CURLOPT_HEADER, 0);
             curl_exec($ch);
@@ -121,13 +121,13 @@
             $imagen -> setIp($this -> container -> get('request') -> getClientIp());
             $em -> persist($imagen);
             $em -> flush();*/
-            $contadorImagenes++;
+            $contadorpdf++;
 		
             //Se procede a buscar el contenido el cual se encuentra en <div class="CUERPO_DETALLE">
-        	$busqueda = '<div class="entry post clearfix">';
-            $contenido = explode($busqueda, $html);
-            $contenido = explode('</div', $contenido[1]);
-            $contenido = $contenido[0];
+        	//1$busqueda = '<div class="entry post clearfix">';
+            //2$contenido = explode($busqueda, $html);
+            //3$contenido = explode('</div', $contenido[1]);
+            //4$contenido = $contenido[0];
 
             //Se obtienen los datos basicos relacionados con la noticia
             //$usuario = $em -> getRepository('ProjectUserBundle:User') -> find(1);
@@ -150,7 +150,7 @@
 
         
 
-		$array = array('contadorImagenes' => $contadorImagenes, 'contadorPronosticos' => $contadorPronosticos, 'contadorNoticias' => $contadorNoticias);
+		$array = array('contadorImagenes' => $contadorpdf, 'contadorPronosticos' => $contadorPronosticos, 'contadorNoticias' => $contadorNoticias);
 		//return $this -> render('ProjectBackBundle:Default:parseo.html.twig', $array);
         return $array;
         }
